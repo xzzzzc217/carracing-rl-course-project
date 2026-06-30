@@ -1,0 +1,2 @@
+step,mean_reward,std_reward,min_reward,max_reward,mean_length,episodes
+5000,-93.08180236816406,0.41016775369644165,-93.67088317871094,-92.33716583251953,1000.0,10

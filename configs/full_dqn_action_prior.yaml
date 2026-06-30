@@ -1,0 +1,12 @@
+inherits: full_dqn.yaml
+
+train:
+  learning_starts: 3000
+  epsilon_decay_steps: 80000
+
+agent:
+  # Discrete actions: 0 noop, 1 left, 2 right, 3 gas, 4 brake.
+  random_action_probabilities: [0.05, 0.18, 0.18, 0.56, 0.03]
+
+logging:
+  run_name: full_dqn_action_prior_seed42

@@ -1,0 +1,43 @@
+seed: 42
+env:
+  id: CarRacing-v2
+  image_size: 64
+  crop_bottom: 12
+  grayscale: true
+  frame_stack: 4
+  action_repeat: 1
+  max_episode_steps: 1000
+  reward_scale: 1.0
+  reward_clip: null
+train:
+  total_steps: 200000
+  learning_starts: 5000
+  train_frequency: 4
+  target_update_interval: 2000
+  eval_interval_steps: 5000
+  save_interval_steps: 5000
+  eval_episodes: 10
+  max_episode_steps: 1000
+  batch_size: 32
+  gamma: 0.99
+  lr: 0.0001
+  replay_capacity: 20000
+  grad_clip_norm: 10.0
+  epsilon_start: 1.0
+  epsilon_final: 0.05
+  epsilon_decay_steps: 100000
+agent:
+  double_dqn: true
+  dueling: true
+  prioritized_replay: false
+  per_alpha: 0.6
+  per_beta_start: 0.4
+  per_beta_frames: 200000
+  per_epsilon: 1.0e-06
+  hidden_dim: 512
+runtime:
+  device: auto
+  num_threads: 4
+  num_interop_threads: 1
+logging:
+  run_name: ablation_no_prioritized_replay_seed42

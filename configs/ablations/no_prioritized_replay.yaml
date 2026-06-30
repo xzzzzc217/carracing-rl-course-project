@@ -1,0 +1,7 @@
+inherits: ../full_dqn.yaml
+
+agent:
+  prioritized_replay: false
+
+logging:
+  run_name: ablation_no_prioritized_replay_seed42

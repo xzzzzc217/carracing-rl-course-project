@@ -1,0 +1,12 @@
+inherits: full_dqn.yaml
+
+train:
+  lr: 0.00003
+  epsilon_start: 0.15
+  epsilon_final: 0.02
+  epsilon_decay_steps: 60000
+  early_stop_reward: 200
+  restore_best_on_early_stop: true
+
+logging:
+  run_name: full_dqn_low_eps_finetune_seed42

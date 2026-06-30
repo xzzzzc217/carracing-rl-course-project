@@ -1,0 +1,7 @@
+inherits: ../full_dqn.yaml
+
+env:
+  reward_clip: 1.0
+
+logging:
+  run_name: ablation_reward_clip_1_seed42

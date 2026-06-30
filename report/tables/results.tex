@@ -1,0 +1,14 @@
+\begin{tabular}{lrrrrr}\toprule
+实验配置 & 最优步数 & 最优平均奖励 & 最终平均奖励 & 平均长度 & 达标 \\
+\midrule
+Full DQN & 25000 & -4.9 $\pm$ 31.0 & -93.1 & 1000.0 & 否 \\
+Full DQN Action Prior & 5000 & -93.1 $\pm$ 0.4 & -93.1 & 1000.0 & 否 \\
+Full DQN Finetune & 35000 & -25.6 $\pm$ 31.6 & -25.6 & 846.8 & 否 \\
+Low-Epsilon Finetune & 30000 & 296.1 $\pm$ 123.3 & -93.1 & 1000.0 & 是 \\
+Low-Epsilon EarlyStop & 30000 & 296.1 $\pm$ 123.3 & 296.1 & 1000.0 & 是 \\
+Baseline DQN & 5000 & -93.1 $\pm$ 0.4 & -93.1 & 1000.0 & 否 \\
+No PER & 15000 & -91.1 $\pm$ 2.7 & -93.1 & 1000.0 & 否 \\
+No Dueling & 5000 & -93.1 $\pm$ 0.4 & -93.1 & 1000.0 & 否 \\
+No Double DQN & 15000 & -48.1 $\pm$ 5.1 & -48.1 & 1000.0 & 否 \\
+\bottomrule
+\end{tabular}

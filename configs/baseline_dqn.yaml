@@ -1,0 +1,9 @@
+inherits: full_dqn.yaml
+
+agent:
+  double_dqn: false
+  dueling: false
+  prioritized_replay: false
+
+logging:
+  run_name: baseline_dqn_seed42

@@ -1,0 +1,9 @@
+inherits: full_dqn.yaml
+
+train:
+  lr: 0.00005
+  epsilon_final: 0.02
+  epsilon_decay_steps: 70000
+
+logging:
+  run_name: full_dqn_finetune_seed42

@@ -1,0 +1,24 @@
+inherits: full_dqn.yaml
+
+env:
+  max_episode_steps: 50
+
+train:
+  total_steps: 64
+  learning_starts: 8
+  train_frequency: 1
+  target_update_interval: 16
+  eval_interval_steps: 32
+  save_interval_steps: 32
+  eval_episodes: 1
+  max_episode_steps: 50
+  batch_size: 4
+  replay_capacity: 128
+  epsilon_decay_steps: 64
+
+agent:
+  hidden_dim: 128
+  per_beta_frames: 64
+
+logging:
+  run_name: smoke_seed42

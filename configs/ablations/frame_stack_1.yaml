@@ -1,0 +1,7 @@
+inherits: ../full_dqn.yaml
+
+env:
+  frame_stack: 1
+
+logging:
+  run_name: ablation_frame_stack_1_seed42

@@ -1,0 +1,7 @@
+inherits: ../full_dqn.yaml
+
+agent:
+  double_dqn: false
+
+logging:
+  run_name: ablation_no_double_dqn_seed42

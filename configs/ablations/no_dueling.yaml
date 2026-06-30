@@ -1,0 +1,7 @@
+inherits: ../full_dqn.yaml
+
+agent:
+  dueling: false
+
+logging:
+  run_name: ablation_no_dueling_seed42
