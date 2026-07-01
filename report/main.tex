@@ -384,7 +384,7 @@ results/                  训练日志、评估日志和模型检查点
 \subsection{开源仓库与复现材料}
 
 项目源码、实验配置、报告源码、自动生成图表和 CSV 结果日志已开源至 GitHub：
-\url{https://github.com/xzzzzc217/carracing-rl-course-project}。仓库中保留可复现实验所需的 Python 源码、YAML 配置、聚合脚本、测试代码和报告文件；为控制仓库体积并避免误用退化模型，模型权重文件 \texttt{*.pt}、本地缓存、临时日志和提交压缩包不纳入开源仓库。最新编译版报告在仓库中另存为 \texttt{report/carracing\_rl\_report.pdf}，训练日志和独立复评日志位于 \texttt{results/} 目录。
+\url{https://github.com/xzzzzc217/carracing-rl-course-project}。仓库中保留可复现实验所需的 Python 源码、YAML 配置、聚合脚本、测试代码和报告文件，并通过 GitHub Actions 持续集成自动执行 \texttt{compileall} 与 \texttt{pytest}，用于验证核心代码和单元测试。复现实验说明位于 \texttt{REPRODUCIBILITY.md}，引用元数据位于 \texttt{CITATION.cff}；为控制仓库体积并避免误用退化模型，模型权重文件 \texttt{*.pt}、本地缓存、临时日志和提交压缩包不纳入开源仓库。最新编译版报告在仓库中另存为 \texttt{report/carracing\_rl\_report.pdf}，训练日志和独立复评日志位于 \texttt{results/} 目录。
 
 正式训练前可先运行快速烟测配置：
 

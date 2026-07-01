@@ -1,10 +1,12 @@
 # 基于强化学习的离散控制赛车游戏
 
+[![CI](https://github.com/xzzzzc217/carracing-rl-course-project/actions/workflows/ci.yml/badge.svg)](https://github.com/xzzzzc217/carracing-rl-course-project/actions/workflows/ci.yml)
+
 本工程面向《强化学习技术与应用》期末大作业，主任务为 `CarRacing-v2` 的离散动作控制：
 
 开源仓库：<https://github.com/xzzzzc217/carracing-rl-course-project>
 
-最新编译版报告：`report/carracing_rl_report.pdf`。仓库保留源码、配置、报告源码、自动图表和 CSV 日志；`.pt` 模型权重、提交压缩包和本地缓存不纳入版本控制。
+最新编译版报告：`report/carracing_rl_report.pdf`。复现实验说明见 `REPRODUCIBILITY.md`。仓库保留源码、配置、报告源码、自动图表和 CSV 日志；`.pt` 模型权重、提交压缩包和本地缓存不纳入版本控制。
 
 ```python
 env = gym.make("CarRacing-v2", continuous=False)
@@ -162,3 +164,7 @@ python scripts/package_submission.py --student 57123117赵子辰
 ## License
 
 本项目以 MIT License 开源。课程资料 PDF、训练权重和本地提交压缩包不属于开源内容。
+
+## Citation
+
+仓库提供 `CITATION.cff`，可用于生成 GitHub 引用信息。

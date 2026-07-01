@@ -8,6 +8,8 @@ import zipfile
 INCLUDE_PATHS = [
     "README.md",
     "LICENSE",
+    "CITATION.cff",
+    "REPRODUCIBILITY.md",
     "requirements.txt",
     "pyproject.toml",
     "configs",
