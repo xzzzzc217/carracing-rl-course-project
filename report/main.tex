@@ -9,7 +9,7 @@
 \usepackage{listings}
 \usepackage{tikz}
 \usepackage{xcolor}
-\usetikzlibrary{arrows.meta,calc,fit,positioning,shapes.geometric}
+\usetikzlibrary{arrows.meta,backgrounds,calc,fit,positioning,shapes.geometric}
 
 \geometry{left=2.6cm,right=2.6cm,top=2.5cm,bottom=2.5cm}
 \hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue}
@@ -25,6 +25,35 @@
   commentstyle=\color{green!40!black},
   stringstyle=\color{orange!70!black}
 }
+\captionsetup{font=small,labelfont=bf}
+\tikzset{
+  paperbox/.style={
+    draw=black!35,
+    rounded corners=3pt,
+    line width=0.55pt,
+    align=center,
+    minimum height=0.82cm,
+    inner xsep=6pt,
+    inner ysep=4pt,
+    font=\small
+  },
+  inputbox/.style={paperbox, fill=blue!6, draw=blue!55!black},
+  transformbox/.style={paperbox, fill=teal!7, draw=teal!55!black},
+  modelbox/.style={paperbox, fill=orange!10, draw=orange!65!black},
+  evalbox/.style={paperbox, fill=purple!7, draw=purple!55!black},
+  archivebox/.style={paperbox, fill=gray!8, draw=gray!60!black},
+  softpanel/.style={
+    draw=black!14,
+    rounded corners=5pt,
+    line width=0.45pt,
+    fill=black!2,
+    inner xsep=8pt,
+    inner ysep=7pt
+  },
+  stagecaption/.style={font=\footnotesize\bfseries, text=black!62, align=center},
+  smallnote/.style={font=\footnotesize, text=black!62, align=center},
+  paperarrow/.style={-{Stealth[length=2.2mm,width=1.5mm]}, line width=0.65pt, draw=black!72}
+}
 
 \title{\textbf{基于改进 DQN 的 CarRacing-v2 离散动作控制研究}}
 \author{57123117\quad 赵子辰}
@@ -39,7 +68,7 @@
 
 \begin{center}
 \includegraphics[width=0.88\textwidth]{figures/graphical_abstract.png}
-\captionof{figure}{本文方法的首页示意图：智能体从赛车图像观测中构造帧堆叠状态，经卷积 Q 网络输出离散驾驶动作，并通过最优检查点、早停和独立复评分析训练稳定性。该图用于概念说明，并非环境原始截图。}
+\captionof{figure}{本文方法首页示意图：赛车视觉观测经 DQN 输出离散动作，并用早停与复评控制训练可信度。}
 \label{fig:graphical_abstract}
 \end{center}
 
@@ -85,25 +114,31 @@ env = gym.make("CarRacing-v2", continuous=False)
 \begin{figure}[htbp]
 \centering
 \resizebox{\textwidth}{!}{
-\begin{tikzpicture}[
-  node distance=1.05cm,
-  block/.style={draw, rounded corners=2pt, align=center, minimum width=2.45cm, minimum height=0.9cm, fill=blue!5},
-  process/.style={draw, rounded corners=2pt, align=center, minimum width=2.25cm, minimum height=0.9cm, fill=green!6},
-  model/.style={draw, rounded corners=2pt, align=center, minimum width=2.5cm, minimum height=0.9cm, fill=orange!10},
-  arrow/.style={-{Stealth[length=2.3mm]}, thick}
-]
-\node[block] (obs) {原始观测\\$96\times96\times3$};
-\node[process, right=of obs] (crop) {裁剪底部\\去除仪表盘};
-\node[process, right=of crop] (gray) {灰度化与缩放\\$64\times64$};
-\node[process, right=of gray] (stack) {4 帧堆叠\\$4\times64\times64$};
-\node[model, right=of stack] (cnn) {卷积 Q 网络\\估计 $Q(s,a)$};
-\node[block, right=of cnn] (act) {离散动作\\$\{0,\ldots,4\}$};
-\draw[arrow] (obs) -- (crop);
-\draw[arrow] (crop) -- (gray);
-\draw[arrow] (gray) -- (stack);
-\draw[arrow] (stack) -- (cnn);
-\draw[arrow] (cnn) -- (act);
-\node[align=center, below=0.45cm of act, font=\small] {无操作 / 左转 / 右转 / 油门 / 刹车};
+\begin{tikzpicture}[node distance=0.72cm and 0.78cm]
+\node[inputbox, minimum width=2.22cm] (obs) {原始观测\\{\footnotesize $96\times96\times3$ RGB}};
+\node[transformbox, right=of obs, minimum width=1.95cm] (crop) {裁剪\\{\footnotesize 去除仪表盘}};
+\node[transformbox, right=of crop, minimum width=1.95cm] (gray) {灰度化\\{\footnotesize $Y=0.299R+\cdots$}};
+\node[transformbox, right=of gray, minimum width=1.95cm] (resize) {缩放归一\\{\footnotesize $64\times64,\ [0,1]$}};
+\node[modelbox, right=of resize, minimum width=2.05cm] (stack) {帧堆叠\\{\footnotesize $4\times64\times64$}};
+\node[modelbox, right=of stack, minimum width=2.15cm] (cnn) {卷积 Q 网络\\{\footnotesize $Q_\theta(s,a)$}};
+\node[evalbox, right=of cnn, minimum width=2.08cm] (act) {动作输出\\{\footnotesize $a\in\{0,\ldots,4\}$}};
+\draw[paperarrow] (obs) -- (crop);
+\draw[paperarrow] (crop) -- (gray);
+\draw[paperarrow] (gray) -- (resize);
+\draw[paperarrow] (resize) -- (stack);
+\draw[paperarrow] (stack) -- (cnn);
+\draw[paperarrow] (cnn) -- (act);
+\node[smallnote, below=0.32cm of act] {无操作 / 左转 / 右转 / 油门 / 刹车};
+\begin{scope}[on background layer]
+  \node[softpanel, fit=(obs)] (panel_obs) {};
+  \node[softpanel, fit=(crop)(gray)(resize)] (panel_pre) {};
+  \node[softpanel, fit=(stack)(cnn)] (panel_model) {};
+  \node[softpanel, fit=(act)] (panel_action) {};
+\end{scope}
+\node[stagecaption, above=0.15cm of panel_obs.north] {环境观测};
+\node[stagecaption, above=0.15cm of panel_pre.north] {视觉预处理};
+\node[stagecaption, above=0.15cm of panel_model.north] {状态表示与价值估计};
+\node[stagecaption, above=0.15cm of panel_action.north] {离散控制};
 \end{tikzpicture}}
 \caption{视觉输入预处理与离散动作决策流程}
 \label{fig:method_pipeline}
@@ -149,27 +184,29 @@ Q(s,a)=V(s)+A(s,a)-\frac{1}{|\mathcal{A}|}\sum_{a'}A(s,a').
 \begin{figure}[htbp]
 \centering
 \resizebox{0.96\textwidth}{!}{
-\begin{tikzpicture}[
-  node distance=0.95cm and 1.05cm,
-  layer/.style={draw, rounded corners=2pt, align=center, minimum width=2.15cm, minimum height=0.78cm, fill=blue!5},
-  stream/.style={draw, rounded corners=2pt, align=center, minimum width=2.35cm, minimum height=0.78cm, fill=purple!7},
-  output/.style={draw, rounded corners=2pt, align=center, minimum width=2.35cm, minimum height=0.78cm, fill=orange!10},
-  arrow/.style={-{Stealth[length=2.2mm]}, thick}
-]
-\node[layer] (input) {输入状态\\$4\times64\times64$};
-\node[layer, right=of input] (conv) {卷积特征\\提取};
-\node[layer, right=of conv] (shared) {共享全连接\\表示 $h(s)$};
-\node[stream, above right=0.75cm and 1.1cm of shared] (value) {价值流\\$V(s)$};
-\node[stream, below right=0.75cm and 1.1cm of shared] (adv) {优势流\\$A(s,a)$};
-\node[output, right=3.2cm of shared] (combine) {聚合\\$V+A-\overline{A}$};
-\node[output, right=of combine] (qvals) {动作价值\\$Q(s,a)$};
-\draw[arrow] (input) -- (conv);
-\draw[arrow] (conv) -- (shared);
-\draw[arrow] (shared) -- (value);
-\draw[arrow] (shared) -- (adv);
-\draw[arrow] (value) -- (combine);
-\draw[arrow] (adv) -- (combine);
-\draw[arrow] (combine) -- (qvals);
+\begin{tikzpicture}[node distance=0.78cm and 0.95cm]
+\node[inputbox, minimum width=2.1cm] (input) {输入状态\\{\footnotesize $4\times64\times64$}};
+\node[modelbox, right=of input, minimum width=2.15cm] (conv) {卷积编码器\\{\footnotesize 空间特征}};
+\node[modelbox, right=of conv, minimum width=2.15cm] (shared) {共享表示\\{\footnotesize $h(s)$}};
+\node[evalbox, above right=0.78cm and 0.95cm of shared, minimum width=2.2cm] (value) {价值流\\{\footnotesize $V(s)$}};
+\node[transformbox, below right=0.78cm and 0.95cm of shared, minimum width=2.2cm] (adv) {优势流\\{\footnotesize $A(s,a)$}};
+\node[archivebox, right=2.55cm of shared, minimum width=2.38cm] (combine) {中心化聚合\\{\footnotesize $V+A-\bar A$}};
+\node[evalbox, right=of combine, minimum width=2.05cm] (qvals) {动作价值\\{\footnotesize $Q(s,a)$}};
+\draw[paperarrow] (input) -- (conv);
+\draw[paperarrow] (conv) -- (shared);
+\draw[paperarrow] (shared) -- (value);
+\draw[paperarrow] (shared) -- (adv);
+\draw[paperarrow] (value) -- (combine);
+\draw[paperarrow] (adv) -- (combine);
+\draw[paperarrow] (combine) -- (qvals);
+\begin{scope}[on background layer]
+  \node[softpanel, fit=(input)(conv)(shared)] (feature_panel) {};
+  \node[softpanel, fit=(value)(adv)] (stream_panel) {};
+  \node[softpanel, fit=(combine)(qvals)] (decision_panel) {};
+\end{scope}
+\node[stagecaption, above=0.15cm of feature_panel.north] {共享特征提取};
+\node[stagecaption, above=0.15cm of stream_panel.north] {双流估计};
+\node[stagecaption, above=0.15cm of decision_panel.north] {Q 值输出};
 \end{tikzpicture}}
 \caption{Dueling DQN 网络结构示意}
 \label{fig:dueling_arch}
@@ -222,26 +259,30 @@ $\epsilon$ 衰减 & 1.0 到 0.05，100000 步线性衰减 \\
 \begin{figure}[htbp]
 \centering
 \resizebox{0.95\textwidth}{!}{
-\begin{tikzpicture}[
-  node distance=1.0cm and 1.25cm,
-  block/.style={draw, rounded corners=2pt, align=center, minimum width=2.55cm, minimum height=0.85cm, fill=blue!5},
-  data/.style={draw, rounded corners=2pt, align=center, minimum width=2.55cm, minimum height=0.85cm, fill=green!6},
-  eval/.style={draw, rounded corners=2pt, align=center, minimum width=2.55cm, minimum height=0.85cm, fill=orange!10},
-  arrow/.style={-{Stealth[length=2.2mm]}, thick}
-]
-\node[block] (env) {CarRacing 环境\\交互采样};
-\node[data, right=of env] (buffer) {Replay Buffer\\存储转移};
-\node[block, right=of buffer] (online) {在线 Q 网络\\梯度更新};
-\node[block, below=of online] (target) {目标网络\\周期同步};
-\node[eval, below=of buffer] (evalnode) {每 5000 步\\10 回合评估};
-\node[eval, below=of env] (ckpt) {\texttt{latest.pt}\\\texttt{best.pt}};
-\draw[arrow] (env) -- (buffer);
-\draw[arrow] (buffer) -- (online);
-\draw[arrow] (online) -- (target);
-\draw[arrow] (target) -- (online);
-\draw[arrow] (online) -- (evalnode);
-\draw[arrow] (evalnode) -- (ckpt);
-\draw[arrow] (online.north) .. controls +(0,1.0) and +(0,1.0) .. node[above, font=\small]{$\epsilon$-greedy action} (env.north);
+\begin{tikzpicture}[node distance=0.88cm and 1.05cm]
+\node[inputbox, minimum width=2.45cm] (env) {CarRacing 环境\\{\footnotesize 交互采样}};
+\node[transformbox, right=of env, minimum width=2.55cm] (buffer) {Replay Buffer\\{\footnotesize $(s,a,r,s',d)$}};
+\node[modelbox, right=of buffer, minimum width=2.55cm] (online) {在线 Q 网络\\{\footnotesize Huber 损失更新}};
+\node[archivebox, below=0.92cm of online, minimum width=2.55cm] (target) {目标网络\\{\footnotesize 每 2000 步同步}};
+\node[evalbox, below=0.92cm of buffer, minimum width=2.55cm] (evalnode) {定期评估\\{\footnotesize 每 5000 步 10 回合}};
+\node[evalbox, below=0.92cm of env, minimum width=2.45cm] (ckpt) {检查点管理\\{\footnotesize \texttt{best.pt} / \texttt{latest.pt}}};
+\node[archivebox, right=of online, minimum width=2.35cm] (early) {早停判据\\{\footnotesize 均分 $\ge 200$}};
+\draw[paperarrow] (env) -- node[above, font=\scriptsize, text=black!60] {转移} (buffer);
+\draw[paperarrow] (buffer) -- node[above, font=\scriptsize, text=black!60] {采样批量} (online);
+\draw[paperarrow] ([xshift=-0.16cm]online.south) -- node[left, font=\scriptsize, text=black!60] {同步} ([xshift=-0.16cm]target.north);
+\draw[paperarrow] ([xshift=0.16cm]target.north) -- node[right, font=\scriptsize, text=black!60] {目标值} ([xshift=0.16cm]online.south);
+\draw[paperarrow] (online) -- (evalnode);
+\draw[paperarrow] (evalnode) -- (ckpt);
+\draw[paperarrow] (online) -- (early);
+\draw[paperarrow] (early.south) |- (ckpt.east);
+\draw[paperarrow] (online.north) to[out=115,in=65,looseness=1.08]
+  node[above, font=\scriptsize, text=black!60] {$\epsilon$-greedy 动作} (env.north);
+\begin{scope}[on background layer]
+  \node[softpanel, fit=(env)(buffer)(online)(target)] (train_panel) {};
+  \node[softpanel, fit=(evalnode)(ckpt)(early)] (evidence_panel) {};
+\end{scope}
+\node[stagecaption, above=0.15cm of train_panel.north] {训练闭环};
+\node[stagecaption, below=0.15cm of evidence_panel.south] {评估、早停与最优模型选择};
 \end{tikzpicture}}
 \caption{训练、评估与检查点管理流程}
 \label{fig:training_workflow}
